@@ -2,10 +2,12 @@ package com.example.logprint;
 
 import android.app.AppOpsManager;
 import android.app.usage.UsageEvents;
+import android.app.usage.UsageStats;
 import android.app.usage.UsageStatsManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.util.LongSparseArray;
@@ -13,10 +15,14 @@ import android.view.View;
 import android.widget.Button;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.example.logprint.R;
-
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -34,13 +40,71 @@ public class MainActivity extends AppCompatActivity {
         Button button;
         button = findViewById(R.id.button);
         button.setOnClickListener(new View.OnClickListener() {
+            @RequiresApi(api = Build.VERSION_CODES.N)
             @Override
             public void onClick(View view) {
 
                 if(!checkPermission())
                     startActivity(new Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS));
+
+                print_time(getApplicationContext());
             }
         });
+    }
+
+    // 수정
+    private class Pair{
+        String name;
+        long time;
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.N)
+    private void print_time(@NonNull Context context) {
+        //UsageStats usageStats;
+        String PackageName = "Nothing";
+        long TimeInforground = 500;
+        int minutes = 500, seconds = 500, hours = 500;
+        UsageStatsManager mUsageStatsManager = (UsageStatsManager) context.getSystemService(Context.USAGE_STATS_SERVICE);
+        long time = System.currentTimeMillis();
+        List<UsageStats> stats = mUsageStatsManager.queryUsageStats(UsageStatsManager.INTERVAL_MONTHLY, time - 1000 * 10, time);
+        if (stats != null) {
+            ArrayList<Pair> list = new ArrayList<>();
+
+            SortedMap<Long, UsageStats> mySortedMap = new TreeMap<Long, UsageStats>();
+            for (UsageStats usageStats : stats) {
+                TimeInforground = usageStats.getTotalTimeInForeground();
+                PackageName = usageStats.getPackageName();
+                Pair tmp = new Pair(); tmp.name = PackageName; tmp.time = TimeInforground;
+                list.add(tmp);
+                //minutes = (int) ((TimeInforground / (1000 * 60)) % 60);
+                //seconds = (int) (TimeInforground / 1000) % 60;
+                //hours = (int) ((TimeInforground / (1000 * 60 * 60)) % 24);
+                //System.out.println("PackageName is" + PackageName + "Time is: " + hours + "h" + ":" + minutes + "m" + seconds + "s");
+            }
+
+            list.sort(new Comparator<Pair>() {
+                @Override
+                public int compare(Pair a, Pair b){
+                    if (a.time < b.time)
+                        return 1;
+                    else if (a.time == b.time)
+                        return 0;
+                    else
+                        return -1;
+                }
+            });
+
+            int i = 0;
+            for (Pair p : list){
+                if (i > 5)
+                    break;
+                minutes = (int) ((p.time / (1000 * 60)) % 60);
+                seconds = (int) (p.time / 1000) % 60;
+                hours = (int) ((p.time / (1000 * 60 * 60)) % 24);
+                System.out.println("PackageName is" + p.name + "Time is: " + hours + "h" + ":" + minutes + "m" + seconds + "s");
+                ++i;
+            }
+        }
     }
 
     private class CheckPackageNameThread extends Thread{
