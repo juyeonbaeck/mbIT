@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.example.test0516_1">
+
+    <uses-permission xmlns:tools="http://schemas.android.com/tools"
+        tools:ignore="ProtectedPermissions"
+        android:name="android.permission.PACKAGE_USAGE_STATS" />
+
+    <application
+        android:allowBackup="true"
+        android:icon="@drawable/ic_launcher_background"
+        android:label="@string/app_name"
+        android:roundIcon="@drawable/ic_launcher_background"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.LogPrint">
+        <activity android:name=".MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+    </application>
+
+</manifest>
+
