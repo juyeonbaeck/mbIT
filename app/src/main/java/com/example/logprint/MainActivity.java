@@ -15,7 +15,7 @@ import android.widget.Button;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.example.test0516_1.R;
+import com.example.logprint.R;
 
 
 public class MainActivity extends AppCompatActivity {
